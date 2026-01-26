@@ -2,8 +2,8 @@
 
 ## HTTPリクエストレスポンス
 ### 課題１
-・Endpointの実装の始め方（引数WebApplication appやHttpContext contextの意味）
-・複数の値をオブジェクト形式でリターンするには？
+・Endpointの実装の始め方（引数this WebApplication appやHttpContext contextの意味）
+・複数の値をオブジェクト形式でリターンするには？（クラスを作るか、以下の匿名型のオブジェクトでいいか）
 ・リクエストの値を取得する方法（context.Request.Methodなど）
 ・オブジェクトの{}の中の書き方
     {
@@ -16,3 +16,7 @@
         a = a,
         b = b
     }
+
+### 課題２
+・クエリパラメータの書き方は単純に引数に書くだけでいいのか？
+　→パスパラメータとの違いなど。
