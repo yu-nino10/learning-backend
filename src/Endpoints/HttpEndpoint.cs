@@ -1,5 +1,6 @@
 using System.Reflection.Metadata;
 using Dtos;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Endpoints;
 
@@ -9,7 +10,7 @@ public static class HttpEndpoint
     {
         app.MapGet("/request-info", getRequestInfo);
         app.MapGet("/search", getSearchInfo);
-        app.MapGet("/api/users", PostUsers);
+        app.MapPost("/api/users", PostUsers);
         
     }
 
@@ -56,14 +57,14 @@ public static class HttpEndpoint
     /// </summary>
     /// <param name="dto"></param>
     /// <returns></returns>
-    public static IResult PostUsers(HttpUserRequestDto dto)
+    public static IResult PostUsers([FromBody]HttpUserRequestDto dto)
     {
         if (string.IsNullOrEmpty(dto.Name) || string.IsNullOrEmpty(dto.Email) )
         {
             return TypedResults.BadRequest(new {error = "不正な値です。"});
         }
 
-        if(dto.Email.Contains("@")) {
+        if(!dto.Email.Contains("@")) {
             return TypedResults.BadRequest(new {error = "Emailに@が含まれていません。"});
         }
         
