@@ -1,4 +1,5 @@
 using System.Reflection.Metadata;
+using System.Reflection.Metadata.Ecma335;
 using Dtos;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,6 +12,9 @@ public static class HttpEndpoint
         app.MapGet("/request-info", getRequestInfo);
         app.MapGet("/search", getSearchInfo);
         app.MapPost("/api/users", PostUsers);
+        app.MapGet("/api/headers/info", GetHeadersInfo);
+        app.MapGet("/api/status/custom", GetStatusCustom);
+        app.MapPost("/api/response/data", PostResponseData);
         
     }
 
@@ -71,5 +75,37 @@ public static class HttpEndpoint
         var result = new { message = "User created", name = dto.Name};
 
         return TypedResults.Created("/api/users", result); // TODO Createdを使う？
+    }
+
+    /// <summary>
+    /// 課題４ HTTPヘッダーとレスポンスステータス
+    /// </summary>
+    /// <param name="dto"></param>
+    /// <returns></returns>
+    public static IResult GetHeadersInfo(HttpContext context)
+    {
+        var agent = context.Request.Headers["User-Agent"];
+        var accept = context.Request.Headers["Accept"];
+        
+        var result = new {agent = agent, accept = accept};
+        return TypedResults.Ok(result);
+    }
+    public static IResult GetStatusCustom(string code)
+    {
+        switch (code)
+        {
+            case "200":
+                return TypedResults.Ok("OK");
+            case "400":
+                return TypedResults.BadRequest("失敗");
+            default:
+                return TypedResults.NotFound("見つからない");
+        }
+    }
+    public static IResult PostResponseData([FromBody] string name, HttpContext context)
+    {
+        var upperName = name.ToUpper();
+        context.Response.Headers.Append("X-Custom-Header", upperName);
+        return TypedResults.Ok();
     }
 }
