@@ -1,6 +1,8 @@
+using System.Linq;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
 using Dtos;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Endpoints;
@@ -15,6 +17,7 @@ public static class HttpEndpoint
         app.MapGet("/api/headers/info", GetHeadersInfo);
         app.MapGet("/api/status/custom", GetStatusCustom);
         app.MapPost("/api/response/data", PostResponseData);
+        app.MapPost("/api/secure/process", PostSecureProcess);
         
     }
 
@@ -107,5 +110,32 @@ public static class HttpEndpoint
         var upperName = name.ToUpper();
         context.Response.Headers.Append("X-Custom-Header", upperName);
         return TypedResults.Ok();
+    }
+
+    /// <summary>
+    /// 課題５ リクエスト/レスポンスの総合課題
+    /// </summary>
+    /// <param name="context">HttpContext</param>
+    /// <param name="dto">リクエストDto</param>
+    /// <returns></returns>
+    public static IResult PostSecureProcess(HttpContext context, HttpSecureProcessRequestDto dto)
+    {
+        var auth = context.Request.Headers["Authorization"];
+        if (string.IsNullOrEmpty(auth)) return TypedResults.Unauthorized();
+
+        if (auth != "Bearer secret-key-123") return TypedResults.Forbid();
+
+        if(dto.Data == "" || dto.Priority is >= 1 and <= 10) return TypedResults.BadRequest();
+
+        context.Response.Headers.Append("X-Processed-At", DateTime.UtcNow.ToString());
+
+        var result = new
+        {
+            data = dto.Data.ToUpper(),
+            priority = dto.Priority
+        };
+
+        return TypedResults.Ok(result);
+
     }
 }
