@@ -1,6 +1,4 @@
 using System.Linq;
-using System.Reflection.Metadata;
-using System.Reflection.Metadata.Ecma335;
 using Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -93,13 +91,13 @@ public static class HttpEndpoint
         var result = new {agent = agent, accept = accept};
         return TypedResults.Ok(result);
     }
-    public static IResult GetStatusCustom(string code)
+    public static IResult GetStatusCustom(int? code)
     {
         switch (code)
         {
-            case "200":
+            case 200:
                 return TypedResults.Ok("OK");
-            case "400":
+            case 400:
                 return TypedResults.BadRequest("失敗");
             default:
                 return TypedResults.NotFound("見つからない");
@@ -121,12 +119,12 @@ public static class HttpEndpoint
     public static IResult PostSecureProcess(HttpContext context, HttpSecureProcessRequestDto dto)
     {
         var auth = context.Request.Headers["Authorization"];
-        
+
         if (string.IsNullOrEmpty(auth)) return TypedResults.Unauthorized();
 
         if (auth != "Bearer secret-key-123") return TypedResults.StatusCode(403);
 
-        if(dto.Data == "" || dto.Priority is < 1 or > 10) return TypedResults.BadRequest();
+        if(string.IsNullOrEmpty(dto.Data) || dto.Priority is < 1 or > 10) return TypedResults.BadRequest();
 
         context.Response.Headers.Append("X-Processed-At", DateTime.UtcNow.ToString());
 
