@@ -121,11 +121,12 @@ public static class HttpEndpoint
     public static IResult PostSecureProcess(HttpContext context, HttpSecureProcessRequestDto dto)
     {
         var auth = context.Request.Headers["Authorization"];
+        
         if (string.IsNullOrEmpty(auth)) return TypedResults.Unauthorized();
 
-        if (auth != "Bearer secret-key-123") return TypedResults.Forbid();
+        if (auth != "Bearer secret-key-123") return TypedResults.StatusCode(403);
 
-        if(dto.Data == "" || dto.Priority is >= 1 and <= 10) return TypedResults.BadRequest();
+        if(dto.Data == "" || dto.Priority is < 1 or > 10) return TypedResults.BadRequest();
 
         context.Response.Headers.Append("X-Processed-At", DateTime.UtcNow.ToString());
 
